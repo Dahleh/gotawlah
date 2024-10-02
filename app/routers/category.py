@@ -1,0 +1,40 @@
+from typing import List
+from .. import models, schemas, utils, oauth2
+from fastapi import  status, HTTPException, Depends, APIRouter
+from sqlalchemy.orm import Session
+from ..database import  get_db
+
+
+router = APIRouter(
+    prefix = "/categories",
+    tags=['categories']
+)
+
+@router.post("/",status_code=status.HTTP_201_CREATED, response_model=schemas.Category)
+def create_category(category: schemas.CategoryCreate, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    new_category = models.Category(**category.model_dump())
+    db.add(new_category)
+    db.commit()
+    db.refresh(new_category)
+    return  new_category
+
+@router.get("/", response_model=List[schemas.Category])
+def all_main_categories(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    categories = db.query(models.Category).filter(models.Category.published == True and models.Category.parent_id is None).all()
+    return categories
+
+
+@router.get("/{id}", response_model=List[schemas.Category])
+def get_child_categories(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    categories = db.query(models.Category).filter(models.Category.parent_id == id and models.Category.published == True).all()
+    return categories
+
+# @router.get("/{id}", response_model=schemas.Category)
+# def getCategory(id: int, db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):
+#     # cursor.execute("""SELECT * FROM posts WHERE id = %s """,
+#     #                 (str(id), ))
+#     # post = cursor.fetchone()
+#     category = db.query(models.Category).filter(models.Category.id == id and models.Category.published == True).first()
+#     if not category:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"category with id: {id} was not found")
+#     return category
