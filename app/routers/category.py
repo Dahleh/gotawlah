@@ -35,17 +35,20 @@ def delete_category(id: int, db: Session = Depends(get_db), current_user: int = 
     category_query = db.query(models.Category).filter(models.Category.id == id)
     category = category_query.first()
     if category  == None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id = {id} does not exits")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Category with id = {id} does not exits")
     
     category_query.delete(synchronize_session=False)
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
-# @router.get("/{id}", response_model=schemas.Category)
-# def getCategory(id: int, db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):
-#     # cursor.execute("""SELECT * FROM posts WHERE id = %s """,
-#     #                 (str(id), ))
-#     # post = cursor.fetchone()
-#     category = db.query(models.Category).filter(models.Category.id == id and models.Category.published == True).first()
-#     if not category:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"category with id: {id} was not found")
-#     return category
+
+
+@router.put("/{id}", response_model=schemas.Category)
+def updatePost(id: int, updatedCategory: schemas.CategoryCreate, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    category_query = db.query(models.Category).filter(models.Category.id == id)
+    category = category_query.first()
+    if category == None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"Category with id = {id} does not exits")
+    
+    category_query.update(updatedCategory.model_dump(), synchronize_session=False)
+    db.commit()
+    return  category_query.first()

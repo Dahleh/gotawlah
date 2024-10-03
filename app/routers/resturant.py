@@ -41,12 +41,23 @@ def get_resturant_by_category(id: int, db: Session = Depends(get_db), current_us
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_resturant(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
-    resturant_query = db.query(models.Category).filter(models.Category.id == id)
+    resturant_query = db.query(models.Resturant).filter(models.Resturant.id == id)
     resturant = resturant_query.first()
     if resturant  == None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id = {id} does not exits")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Resturant with id = {id} does not exits")
     
     resturant_query.delete(synchronize_session=False)
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+@router.put("/{id}", response_model=schemas.Resturant)
+def updatePost(id: int, updatedResturant: schemas.ResturantCreate, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    resturant_query = db.query(models.Resturant).filter(models.Resturant.id == id)
+    resturant = resturant_query.first()
+    if resturant == None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"Resturant with id = {id} does not exits")
+    
+    resturant_query.update(updatedResturant.model_dump(), synchronize_session=False)
+    db.commit()
+    return  resturant_query.first()
 

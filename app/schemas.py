@@ -20,6 +20,11 @@ class UserOut(BaseModel):
     last_name: str
     created_at: datetime
 
+class UserUpdate(BaseModel):
+    phone: str
+    first_name: str
+    last_name: str
+
 class Category(BaseModel):
     id: int
     name: str
@@ -67,6 +72,11 @@ class Booking(BaseModel):
 
 class BookingCreate(BaseModel):
     resturant_id: int
+    valid: bool
+    time: datetime
+    people_count: int
+
+class BookingUpdate(BaseModel):
     valid: bool
     time: datetime
     people_count: int
