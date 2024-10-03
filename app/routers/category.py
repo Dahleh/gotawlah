@@ -1,6 +1,6 @@
 from typing import List
 from .. import models, schemas, utils, oauth2
-from fastapi import  status, HTTPException, Depends, APIRouter
+from fastapi import  Response, status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
 from ..database import  get_db
 
@@ -29,6 +29,17 @@ def get_child_categories(id: int, db: Session = Depends(get_db), current_user: i
     categories = db.query(models.Category).filter(models.Category.parent_id == id and models.Category.published == True).all()
     return categories
 
+
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT) 
+def delete_category(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    category_query = db.query(models.Category).filter(models.Category.id == id)
+    category = category_query.first()
+    if category  == None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id = {id} does not exits")
+    
+    category_query.delete(synchronize_session=False)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 # @router.get("/{id}", response_model=schemas.Category)
 # def getCategory(id: int, db: Session = Depends(get_db), user_id: int = Depends(oauth2.get_current_user)):
 #     # cursor.execute("""SELECT * FROM posts WHERE id = %s """,

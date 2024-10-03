@@ -1,6 +1,6 @@
 from typing import List
 from .. import models, schemas, utils, oauth2
-from fastapi import  status, HTTPException, Depends, APIRouter
+from fastapi import  Response, status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
 from ..database import  get_db
 
@@ -38,4 +38,15 @@ def get_resturant(id: int, db: Session = Depends(get_db), current_user: int = De
 def get_resturant_by_category(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     resturants = db.query(models.Resturant).filter(models.Resturant.category_id == id and models.Resturant.published == True).all()
     return resturants
+
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_resturant(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    resturant_query = db.query(models.Category).filter(models.Category.id == id)
+    resturant = resturant_query.first()
+    if resturant  == None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id = {id} does not exits")
+    
+    resturant_query.delete(synchronize_session=False)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
