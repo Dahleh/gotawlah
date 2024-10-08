@@ -17,7 +17,20 @@ def get_user_bookings(db: Session = Depends(get_db), current_user: int = Depends
 
     return bookings
 
-# Get specfic booking
+@router.get("/resturant/{id}", response_model=List[schemas.Booking])
+def get_resturant_bookings(id:int, db: Session = Depends(get_db)):
+    bookings = db.query(models.Booking).filter(models.Booking.resturant_id == id)
+
+    return bookings
+
+@router.get("/{id}", response_model=schemas.Booking)
+def get_specific_booking(id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    booking = db.query(models.Booking).filter(models.Booking.id == id and current_user.id == models.Booking.user_id and models.Booking.valid == True).first()
+    
+    if booking == None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Booking with id {id} does not exits")
+    
+    return booking
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.Booking)
 def create_booking(booking: schemas.BookingCreate, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):

@@ -1,7 +1,7 @@
 from datetime import datetime
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, model_validator
 from typing import List, Optional
-
+import json
 
 
 
@@ -29,12 +29,15 @@ class Category(BaseModel):
     id: int
     name: str
     content: str
+    image: str
     published: bool
+    parent_id: int
     created_at: datetime
 
 class CategoryCreate(BaseModel):
     name: str
     content: str
+    parent_id: int = 0
     published: bool
 
 class Resturant(BaseModel):
@@ -55,6 +58,16 @@ class ResturantCreate(BaseModel):
     description: str
     published: bool
     category_id: int
+    timings: str = "24h"
+    location: str = "maps.google.com"
+
+    @model_validator(mode='before')
+    @classmethod
+    def validate_to_json(cls, value):
+        if isinstance(value, str):
+            return cls(**json.loads(value))
+        return value
+    
 
 class ResturantList(BaseModel):
     id: int
@@ -69,11 +82,13 @@ class Booking(BaseModel):
     time: datetime
     people_count: int
     created_at: datetime
+    user: UserOut
+    resturant: Resturant
 
 class BookingCreate(BaseModel):
     resturant_id: int
     valid: bool
-    time: datetime
+    time: datetime = datetime.now()
     people_count: int
 
 class BookingUpdate(BaseModel):
@@ -100,6 +115,13 @@ class Favorite(BaseModel):
     resturant_id: int
     user_id: int
 
+class FavoriteCreate(BaseModel):
+    resturant_id: int
+
+class FavoriteOut(BaseModel):
+    resturant_id: int
+    resturant: Resturant
+    user: UserOut
 
 class Token(BaseModel):
     access_token: str

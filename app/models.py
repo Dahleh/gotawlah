@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, ARRAY
 from sqlalchemy.sql.sqltypes import TIMESTAMP, DateTime
 from sqlalchemy.sql.expression import text
 from .database import Base
-
+from sqlalchemy.orm import relationship
 
 
 
@@ -46,6 +46,8 @@ class Booking(Base):
     time = Column(DateTime, nullable=False, server_default=text('NOW()'))
     people_count = Column(Integer, nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('NOW()'))
+    user = relationship("User")
+    resturant = relationship("Resturant")
     # updated_at = Column(TIMESTAMP(timezone=True), nullable=False, server_onupdate=text('NOW()'), server_default=text('NOW()'))
 
 class User(Base):
@@ -87,5 +89,7 @@ class Favorite(Base):
     id = Column(Integer,primary_key=True, nullable=False)
     resturant_id = Column(Integer, ForeignKey("resturants.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    resturant = relationship("Resturant")
+    user = relationship("User")
 
 

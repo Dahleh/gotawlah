@@ -4,7 +4,7 @@ from psycopg.rows import dict_row
 import time
 from . import models
 from .database import engine
-from .routers import resturant, category, booking, user, auth
+from .routers import resturant, category, booking, user, auth, favorite
 from .config import settings
 
 
@@ -19,6 +19,7 @@ app.include_router(auth.router)
 app.include_router(resturant.router)
 app.include_router(category.router)
 app.include_router(booking.router)
+app.include_router(favorite.router)
 
 @app.get("/")
 async def root():
