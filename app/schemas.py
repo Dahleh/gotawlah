@@ -103,6 +103,9 @@ class Banner(BaseModel):
     resturant_id: int
     created_at: datetime
 
+class BannerCreate(BaseModel):
+    resturant_id: int
+    published: bool
 
 class OTP(BaseModel):
     id: int

@@ -67,7 +67,7 @@ def update_resturant(id: int, updatedResturant: schemas.ResturantCreate, db: Ses
     db.commit()
     return  resturant_query.first()
 
-@router.put("/uploadlogo/{id}", status_code=status.HTTP_201_CREATED)
+@router.put("/uploadlogo/{id}",response_model=schemas.Resturant)
 def upload_logo(id: int, logo_upload: UploadFile,db: Session = Depends(get_db)):
     logo_url =  utils.upload_image(logo_upload)
     resturant_query = db.query(models.Resturant).filter(models.Resturant.id == id)
@@ -79,7 +79,7 @@ def upload_logo(id: int, logo_upload: UploadFile,db: Session = Depends(get_db)):
     db.commit()
     return  resturant_query.first()
 
-@router.put("/uploadmenu/{id}", status_code=status.HTTP_201_CREATED)
+@router.put("/uploadmenu/{id}", response_model=schemas.Resturant)
 def upload_menu(id: int, pdf_upload: UploadFile,db: Session = Depends(get_db)):
     pdf_url = utils.upload_image(pdf_upload)
     resturant_query = db.query(models.Resturant).filter(models.Resturant.id == id)
@@ -91,7 +91,7 @@ def upload_menu(id: int, pdf_upload: UploadFile,db: Session = Depends(get_db)):
     db.commit()
     return  resturant_query.first()
 
-@router.put("/images/{id}", status_code=status.HTTP_201_CREATED)
+@router.put("/images/{id}", response_model=schemas.Resturant)
 def upload_multi_images(id: int,  images: List[UploadFile], db: Session = Depends(get_db)):
     images_list = utils.upload_multi_images(images)
     resturant_query = db.query(models.Resturant).filter(models.Resturant.id == id)
